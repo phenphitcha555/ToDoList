@@ -16,7 +16,7 @@
 				->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 	});
 
-	// Get all tasks
+	// View all tasks in the list
 	$app->get('/task/all', function(Request $request, Response $response){
 		$sql = "SELECT * FROM tasklist";
 
@@ -35,9 +35,9 @@
 		}
 	});
 
-	// Get single task by id
-	$app->get('/task/{id}', function(Request $request, Response $response){
-		$id = $request->getAttribute('id');
+	// View a single task in the list (by id)
+	$app->get('/task/{task_id}', function(Request $request, Response $response){
+		$id = $request->getAttribute('task_id');
 
 		$sql = "SELECT * FROM tasklist WHERE id = $id";
 
@@ -56,7 +56,7 @@
 		}
 	});
 
-	// Add new task
+	// Add a new task to the list
 	$app->post('/task/add', function(Request $request, Response $response){
 		$task_name = $request->getParam('task_name');
 		$task_detail = $request->getParam('task_detail');
@@ -84,9 +84,9 @@
 		}
 	});
 
-	// Edit task by id
-	$app->put('/task/edit/{id}', function(Request $request, Response $response){
-		$id = $request->getAttribute('id');
+	// Edit existing task (by id)
+	$app->put('/task/edit/{task_id}', function(Request $request, Response $response){
+		$id = $request->getAttribute('task_id');
 		$task_name = $request->getParam('task_name');
 		$task_detail = $request->getParam('task_detail');
 		$status = $request->getParam('status');
@@ -118,30 +118,9 @@
 		}
 	});
 
-	// Delete task by id
-	$app->delete('/task/delete/{id}', function(Request $request, Response $response){
-		$id = $request->getAttribute('id');
-
-		$sql = "DELETE FROM tasklist WHERE id = $id";
-
-		try{
-			// Get DB Object
-			$db = new db();
-			
-			// Connect
-			$db = $db->connect();
-			$stmt = $db->prepare($sql);
-			$stmt->execute();
-			$db = null;
-			echo '{"notice": {"text": "Task Deleted"}}';
-		} catch(PDOException $e){
-			echo '{"error": {"text": '.$e->getMessage().'}}';
-		}
-	});
-
-	// Update task status by id
-	$app->put('/task/update_status/{id}', function(Request $request, Response $response){
-		$id = $request->getAttribute('id');
+	// Set the task status (by id)
+	$app->put('/task/update_status/{task_id}', function(Request $request, Response $response){
+		$id = $request->getAttribute('task_id');
 		$status = $request->getParam('status');
 
 		$sql = "UPDATE tasklist SET
@@ -162,6 +141,27 @@
 
 			echo '{"notice": {"text": "Task Status Updated"}}';
 
+		} catch(PDOException $e){
+			echo '{"error": {"text": '.$e->getMessage().'}}';
+		}
+	});
+
+	// Delete a task from the list (by id)
+	$app->delete('/task/delete/{task_id}', function(Request $request, Response $response){
+		$id = $request->getAttribute('task_id');
+
+		$sql = "DELETE FROM tasklist WHERE id = $id";
+
+		try{
+			// Get DB Object
+			$db = new db();
+			
+			// Connect
+			$db = $db->connect();
+			$stmt = $db->prepare($sql);
+			$stmt->execute();
+			$db = null;
+			echo '{"notice": {"text": "Task Deleted"}}';
 		} catch(PDOException $e){
 			echo '{"error": {"text": '.$e->getMessage().'}}';
 		}
